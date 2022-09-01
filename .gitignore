@@ -1,0 +1,10 @@
+/.venv
+**/__pycache__
+/.idea
+/.vscode
+*.instance
+app/test.py
+**/build
+**/dist
+*.exe
+
