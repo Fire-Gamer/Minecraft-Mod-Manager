@@ -1,6 +1,8 @@
+from time import *
 from src.utils import *
 from public.constants import *
 from src.instanceManager import InstanceManager
+from src.config import config
 import argparse
 import os
 os.system("")
@@ -31,11 +33,22 @@ def create_dirs():
 	if not os.path.exists(INDEX):
 		with open(INDEX, "w") as index: pass
 	if not os.path.exists(CONFIG_FILE):
-		with open(CONFIG_FILE, "w") as conf: pass
-			
+		with open(CONFIG_FILE, "w") as conf:
+			for i in len(DC):
+				if conf[i] == DC[i]: write = False
+				else: write = True; break
+			if write:
+				for i in DC:
+					conf.write(i)
+		
+
 
 def main():
-	if not os.path.exists(DMF): print("The mc folder can't be found")
+	conf = config()
+	if conf.get("run").get("first"):
+		pass
+	if not(os.path.exists(DMF)):
+			print("Your minecraft folder can't be found!")
 	else:
 		try:
 			args = arguments()

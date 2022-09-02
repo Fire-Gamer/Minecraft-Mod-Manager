@@ -56,7 +56,7 @@ def config(mode: str="r", change: dict = None) -> dict:
 				conf = [i.strip() for i in config_read.readlines()]
 				for i in update_settings(conf):
 					settings.append(i)
-					configs = [i.strip() for i in settings.readlines()]
+					configs = [i.strip() for i in settings]
 					for i in configs:
 						name = i.replace("[", "").replace("]", "")
 						x = {i.replace(f"{name}.", "").split('==')[0]:i.replace(f"{name}.", "").split('==')[1] for i in conf_block(i, conf)}

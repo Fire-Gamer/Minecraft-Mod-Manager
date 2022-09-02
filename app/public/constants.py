@@ -8,4 +8,13 @@ CONFIG_FILE = f"{CONFIG_FOLDER}config.conf"
 DMF = f"{HOME}\.minecraft"
 DIF = f"{HOME}\.instances"
 DMOF = f"{DMF}\mods"
+DC = ["[saves]\n",
+		"\tsaves.minecraft.folder==''n",
+		"\tsaves.instance.folder==''n",
+	"[run]\n",
+		"\trun.first==true",
+	"[defaults]\n",
+		"\tdefaults.version==None",
+		"\tdefaults.loader==None",
+		"\tdefaults.settings==None"]
 # SETTINGS = f"{}settings.txt"

@@ -39,3 +39,19 @@ def get_mode(args):
 			except:
 				pass
 	return mode
+
+def choose(available: list, prompt: str="", invalid_prompt: str="", default: str=""):
+	pmt = f"[{default.lower()}]"
+	for i in available:
+		if i.lower() != default: pmt += f",{i}"
+	if prompt == "" or prompt == None:
+		prompt = f"Enter your choice[{pmt}]: "
+	if invalid_prompt == "" or invalid_prompt == None:
+		invalid_prompt = f"Sorry your choice isn't valid Choose from [{pmt}]: "
+	choice = input(prompt)
+	if choice.lower() in [i.lower() for i in available]:
+		return choice
+	else:
+		while choice.lower() not in [i.lower() for i in available]:
+			choice = input(invalid_prompt)
+		return choice
