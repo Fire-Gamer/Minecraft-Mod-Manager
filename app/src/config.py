@@ -68,15 +68,28 @@ def config(mode: str="r", change: dict = None) -> dict:
 			return config_dict
 	if mode.lower() == "w" and change is not None:
 		conf = config()
+		txt = conf_to_str(conf)
+		s = setting_to_str(change)
+		index_s = txt.index(s)
+		txt[index_s] = ''
 		# TODO add the write code
-		# print(change.keys())
-		# for i,j in conf.items():
-		# 	if type(j) == dict:
-		# 		print(f"{j}")
-		# 		for k, l in j.items:
-		# 			print(f"{k}: {l}")
-		# 	print(f"{i}: {j}")
-			
+		print(change.keys())
 
-def conf_to_str(conf) -> str:
-	txt = []
+
+def firstRun():
+	config("w", {"run", {"first": "false"}})		
+	
+
+def conf_to_str(conf: dict) -> list:
+	txt_list = []
+	for key, value in conf.items():
+		txt_list.append(f"[{key}]\n")
+		if isinstance(value, dict):
+			for i, j in value.items():
+				txt_list.append(f"\t{i}=={j}\n")
+	return txt_list
+
+def setting_to_str(setting: dict(str, dict(str, str))) -> str:
+	for key, value in setting.items():
+		for i, j in value.items():
+			return f"{i}=={f'{key}.{j}' if j.find(key) != -1 else j}"

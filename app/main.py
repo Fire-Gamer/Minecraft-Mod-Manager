@@ -47,6 +47,7 @@ def main():
 	conf = config()
 	if conf.get("run").get("first"):
 		pass
+		# firstRun()
 	if not(os.path.exists(DMF)):
 			print("Your minecraft folder can't be found!")
 	else:
