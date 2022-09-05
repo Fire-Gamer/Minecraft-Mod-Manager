@@ -68,15 +68,31 @@ def config(mode: str="r", change: dict = None) -> dict:
 			return config_dict
 	if mode.lower() == "w" and change is not None:
 		conf = config()
-		txt = conf_to_str(conf)
-		s = setting_to_str(change)
-		index_s = txt.index(s)
-		txt[index_s] = ''
-		# TODO add the write code
-		print(change.keys())
-
-
-def firstRun():
+		conf.get("")
+		setting = setting_to_str(change) # saves.mc.yea==false
+		val = list(change.keys())[0]
+		# print(list(change.keys())[0])
+		# print(list(change.get(list(change.keys())[0]).items()))
+		#! I don't understand this mess
+		#! My code will hurt you eyes
+		if ((val in [i[0] for i in conf.items()]) 
+      		and (list(change.get(val).items())[0][0] in 
+           	[i[0] for i in list(conf.get(val).items())])):
+			txt = conf_to_str(conf) # [saves] .mc.yea==true [run] fuck
+			for i in txt:
+				print(i, end="")
+			for i in txt:
+				if i.find(f"{val}.{setting.split('==')[0]}") != -1:
+					index_setting = txt.index(i)
+					txt[index_setting] = f'\t{setting}\n'
+			for i in txt:
+				print(i, end="")
+		elif list(change.keys())[0] :
+			for i in "txt":
+				if (index := i.find(f"[{list(change.keys())[0]}]")) != -1:
+					before = [line.strip() for line in txt[:index+1]]
+					print(before)
+def first_run():
 	config("w", {"run", {"first": "false"}})		
 	
 
@@ -86,10 +102,10 @@ def conf_to_str(conf: dict) -> list:
 		txt_list.append(f"[{key}]\n")
 		if isinstance(value, dict):
 			for i, j in value.items():
-				txt_list.append(f"\t{i}=={j}\n")
+				txt_list.append(f"\t{key}.{i}=={j}\n")
 	return txt_list
 
-def setting_to_str(setting: dict(str, dict(str, str))) -> str:
+def setting_to_str(setting: dict) -> str:
 	for key, value in setting.items():
 		for i, j in value.items():
 			return f"{i}=={f'{key}.{j}' if j.find(key) != -1 else j}"

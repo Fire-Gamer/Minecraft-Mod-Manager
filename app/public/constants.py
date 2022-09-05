@@ -9,12 +9,12 @@ DMF = f"{HOME}\.minecraft"
 DIF = f"{HOME}\.instances"
 DMOF = f"{DMF}\mods"
 DC = ["[saves]\n",
-		"\tsaves.minecraft.folder==''n",
-		"\tsaves.instance.folder==''n",
+		"\tsaves.minecraft.folder==''\n",
+		"\tsaves.instance.folder==''\n",
 	"[run]\n",
-		"\trun.first==true",
+		"\trun.first==true\n",
 	"[defaults]\n",
-		"\tdefaults.version==None",
-		"\tdefaults.loader==None",
+		"\tdefaults.version==None\n",
+		"\tdefaults.loader==None\n",
 		"\tdefaults.settings==None"]
 # SETTINGS = f"{}settings.txt"

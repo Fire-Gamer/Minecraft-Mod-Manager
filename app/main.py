@@ -34,19 +34,15 @@ def create_dirs():
 		with open(INDEX, "w") as index: pass
 	if not os.path.exists(CONFIG_FILE):
 		with open(CONFIG_FILE, "w") as conf:
-			for i in len(DC):
-				if conf[i] == DC[i]: write = False
-				else: write = True; break
-			if write:
 				for i in DC:
 					conf.write(i)
 		
 
 
 def main():
-	conf = config()
-	if conf.get("run").get("first"):
-		pass
+	# conf = config()
+	# if conf.get("run").get("first"):
+	# 	pass
 		# firstRun()
 	if not(os.path.exists(DMF)):
 			print("Your minecraft folder can't be found!")
@@ -73,8 +69,10 @@ def main():
 					'version': instanceManager.read_instance(instance).get('version')}
 					details.update({instance: detail})
 				print_instances(instances, details)
-		except Exception as e:
-			print(f"[EXCEPTION] [ERROR] {e}")
+		# except Exception as e:
+		# 	print(f"[EXCEPTION] [ERROR] {e}")
+		finally:
+			pass
 
 if __name__ == "__main__":
 	main()
