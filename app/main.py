@@ -1,8 +1,7 @@
-from time import *
 from src.utils import *
 from public.constants import *
 from src.instanceManager import InstanceManager
-from src.config import config
+from src.config import Config
 import argparse
 import os
 os.system("")
