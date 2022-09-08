@@ -17,4 +17,3 @@ DC = ["[saves]\n",
 		"\tdefaults.version==None\n",
 		"\tdefaults.loader==None\n",
 		"\tdefaults.settings==None"]
-# SETTINGS = f"{}settings.txt"
