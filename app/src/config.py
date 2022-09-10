@@ -5,6 +5,7 @@ class Config(object):
 	def __init__(self, config_path = CONFIG_FILE):
 		if not os.path.exists(config_path): print(f"Config file at {config_path} could not be found")
 		else: self.config_path = config_path
+		if self.read_conf().get("run").get("first") == "true": self.first_run()
 
 	def conf_block(self, start: str, conf: list, end: list = ["[", "]"]) -> list:
 		"""Gets a block of config between the start and end
@@ -87,9 +88,23 @@ class Config(object):
 			for line in txt:
 				config.write(line)
 
-	# TODO move to a new module
 	def first_run(self):
-		pass		
+		conf = self.read_conf()
+		self.write_conf({"run": {"first": "false"}})
+		os.system("cls")
+		print("Enter your mc folder or nothing for default")
+		MCDIR = input("Minecraft Folder: ")
+		while ((not os.path.exists(MCDIR)) or 
+				(not os.path.exists(f"{MCDIR}/mods")) or 
+				(not os.path.exists(f"{MCDIR}/versions"))
+				) and MCDIR:
+			if not os.path.exists(MCDIR):
+				MCDIR = input("[Invalid] The path doesn't exist")
+			else:
+				MCDIR = input("[Invalid] The given folder is not an mc folder")
+			MCDIR = input("Please enter your mc folder: ")
+		self.write_conf({"minecraft": {"folder": MCDIR}})
+		print(f"The config file is found at {CONFIG_FILE}. Change is based on the docx")
 
 	def conf_to_str(self, conf: dict) -> list:
 		txt_list = []

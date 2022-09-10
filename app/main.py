@@ -95,10 +95,11 @@ def create_instance_manager():
 
 def main():
 	try:
+		config = Config()
 		create_dirs()
 		args()
-	# except Exception as e:
-	# 	print(f"[EXCEPTION] [ERROR] {e}")
+	except Exception as e:
+		print(f"[EXCEPTION] [ERROR] {e}")
 	finally:
 		pass
 

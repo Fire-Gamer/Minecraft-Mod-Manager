@@ -8,12 +8,15 @@ CONFIG_FILE = f"{CONFIG_FOLDER}config.conf"
 DMF = f"{HOME}\.minecraft"
 DIF = f"{HOME}\.instances"
 DMOF = f"{DMF}\mods"
-DC = ["[saves]\n",
-		"\tsaves.minecraft.folder==''\n",
-		"\tsaves.instance.folder==''\n",
+DC = ["[minecraft]\n",
+		"\tminecraft.folder==''\n",
 	"[run]\n",
 		"\trun.first==true\n",
 	"[defaults]\n",
 		"\tdefaults.version==None\n",
 		"\tdefaults.loader==None\n",
 		"\tdefaults.settings==None"]
+
+AVAILABLE_SETTINGS = [""]
+
+# Todo Change to be on roaming folder or something IDK

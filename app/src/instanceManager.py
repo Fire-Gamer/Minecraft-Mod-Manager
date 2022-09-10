@@ -39,8 +39,8 @@ class InstanceManager(object):
 				print(f"[ERROR] [INFO] A folder with the name of {name} already exists"); return None
 		save: str
 		save = f"name=={instance.get('name')}\n[\n\t\u007b\n"
-		for mod, path in instance.get("mods").items():
-			save += f"\t\t{mod}: '{path}',\n"
+		for mod, enabled in instance.get("mods").items():
+			save += f"\t\t{mod}: '{enabled}',\n"
 		save += f"\t\u007d,\n\n\t" \
 				 f"save_settings=={str(instance.get('setting')).lower()},\n\t" \
 				 f"version=={instance.get('version')},\n\t" \
@@ -74,7 +74,7 @@ class InstanceManager(object):
 	def update_index(self):
 		with open(f"{INDEX}", "w") as index:
 			instances = []
-			for file in os.listdir(f"{INSTANCES_FOLDER}/instances"):
+			for file in os.listdir(f"{INSTANCES_FOLDER}"):
 				if os.path.isfile(f"{INSTANCES_FOLDER}/{file}"):
 					instances.append(file.lower().strip())
 			for name in instances:
@@ -101,7 +101,8 @@ class InstanceManager(object):
 	def update_instance(self, name: str):
 		mods  = {}
 		for i in os.listdir(f"{DIF}\{name}"):
-			mods.update({f"{i}": f"{os.path.abspath(i)}"})
+			# TODO change to deactivate and activate instances
+			mods.update({f"{i}": f"true"})
 		self.create_instance(name, self.read_instance("setting"),
 					self.read_instance("version"),
 					self.read_instance("loader"),
@@ -127,5 +128,12 @@ class InstanceManager(object):
 		except Exception as e:
 			print(f"[Error] [Exception] {e}")
 
+	def apply_instance(self, name):
+		instance = self.read_instance(name)
+		for mod, enabled in instance.get("mods").items():
+			if enabled.lower():
+				pass
+				# shutil.copy(f"{INSTANCES_FOLDER}/{name}.instance", f"{DIF}\{name}\\")
+			# Todo Implement
 
 # TODO Simplify every thing
