@@ -118,9 +118,9 @@ class Config(object):
             or (not os.path.exists(f"{MCDIR}/versions"))
         ) and MCDIR:
             if not os.path.exists(MCDIR):
-                MCDIR = input("[Invalid] The path doesn't exist")
+                print("[Invalid] The path doesn't exist")
             else:
-                MCDIR = input("[Invalid] The given folder is not an mc folder")
+                print("[Invalid] The given folder is not a mc folder")
             MCDIR = input("Please enter your mc folder: ")
         self.write_conf({"minecraft": {"folder": MCDIR}})
         print(f"The config file is found at {CONFIG_FILE}. Change is based on the docx")

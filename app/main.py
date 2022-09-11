@@ -102,7 +102,7 @@ def args():
         "update", help="Update an instance after adding mods"
     )
     update_parser.add_argument(
-        "name", nargs=0, type=str, help="The name of the instance to be updated"
+        "name", type=str, help="The name of the instance to be updated"
     )
     update_parser.add_argument("-s", "--setting", action="store_true")
     update_parser.set_defaults(func=update)
@@ -123,8 +123,8 @@ def create_instance_manager():
 
 def main():
     try:
-        config = Config()
         create_dirs()
+        config = Config()
         args()
     except Exception as e:
         print(f"[EXCEPTION] [ERROR] {e}")
