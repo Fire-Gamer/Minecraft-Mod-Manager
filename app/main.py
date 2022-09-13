@@ -10,21 +10,32 @@ os.system("")
 
 
 def create_dirs():
+    returning = ""
     if not (os.path.exists(MMMF)):
         os.makedirs(MMMF)
+        returning = "Added"
     if not (os.path.exists(CONFIG_FOLDER)):
         os.makedirs(CONFIG_FOLDER)
+        returning = "Added"
     if not (os.path.exists(INSTANCES_FOLDER)):
         os.makedirs(INSTANCES_FOLDER)
+        returning = "Added"
     if not (os.path.exists(DIF)):
         os.makedirs(DIF)
+        returning = "Added"
     if not os.path.exists(INDEX):
         with open(INDEX, "w") as index:
             pass
+        returning = "Added"
     if not os.path.exists(CONFIG_FILE):
         with open(CONFIG_FILE, "w") as conf:
             for i in DC:
                 conf.write(i)
+        returning = "Added"
+    if returning == "":
+        return None
+    else:
+        return 0
 
 
 def create(args):
@@ -32,6 +43,13 @@ def create(args):
     instanceManager.create_instance(
         args.name, True if args.settings == "true" else False, args.version, args.loader
     )
+
+
+def initialize(args):
+    create_dirs()
+    if not create_dirs():
+        print("Already initialized")
+    Config()
 
 
 def lst(args):
@@ -57,6 +75,11 @@ def update(args):
     pass
 
 
+def delete(args):
+    instanceManager = create_instance_manager()
+    instanceManager.delete_instance(args.name)
+
+
 def args():
     # Main parser (Parent)
     parser = argparse.ArgumentParser(
@@ -66,6 +89,9 @@ def args():
     subparser = parser.add_subparsers(dest="cmd")
     # Making subparser required
     subparser.required = True
+
+    init_parser = subparser.add_parser("init", help="Initialize mmm")
+    init_parser.set_defaults(func=initialize)
 
     # Create parser
     create_parser = subparser.add_parser(
@@ -107,6 +133,13 @@ def args():
     update_parser.add_argument("-s", "--setting", action="store_true")
     update_parser.set_defaults(func=update)
 
+    # Delete parser
+    delete_parser = subparser.add_parser(
+        "delete", help="Delete an instance with the specified name"
+    )
+    delete_parser.add_argument("name", help="Name of instance to delete")
+    delete_parser.set_defaults(func=delete)
+
     # ? Parsing args and redirecting to the respective function
     args = parser.parse_args()
     args.func(args)
@@ -123,8 +156,6 @@ def create_instance_manager():
 
 def main():
     try:
-        create_dirs()
-        config = Config()
         args()
     except Exception as e:
         print(f"[EXCEPTION] [ERROR] {e}")

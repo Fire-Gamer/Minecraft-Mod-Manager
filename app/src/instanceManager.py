@@ -74,7 +74,12 @@ class InstanceManager(object):
         # Todo Make a settings file
 
     def get_instances_names(self):
-        return self.instances_names
+        return [name.lower() for name in self.instances_names]
+
+    def get_instance_folder(self, name) -> str:
+        if self.get_instances_file() is not None:
+            return f"{DIF}\{name}"
+        return None
 
     def get_instance_file(self, name: str):
         with open(f"{INDEX}", "r") as index:
@@ -83,13 +88,15 @@ class InstanceManager(object):
                 instance_names.append(instance.strip())
             for instance in instance_names:
                 if instance.lower() == name.lower() and os.path.exists(
-                    f"{INSTANCES_FOLDER}/{name.lower()}.instance"
+                    f"{INSTANCES_FOLDER}\{name.lower()}.instance"
                 ):
-                    return f"{INSTANCES_FOLDER}/{name.lower()}.instance"
+                    return f"{INSTANCES_FOLDER}\{name.lower()}.instance"
                 else:
-                    print(f"[ERROR] [Exception] Index file is corrupted please update.")
+                    print(
+                        f"[ERROR] [Invalid] An instance with the name '{name}' does not exist"
+                    )
                     return None
-        print(f"[ERROR] [Invalid] An instance with the name '{name}' does not exist")
+        print(f"[ERROR] [Exception] Index file is corrupted please update.")
         return None
 
     def update_index(self):
@@ -170,6 +177,21 @@ class InstanceManager(object):
                 shutil.copy(f"{DIF}\\{name}\\mods\\{mod}", f"{DMF}\\mods\\")
             else:
                 print(f"Mod {mod} is not enabled")
+
+    def delete_instance(self, name: str):
+        print(self.get_instances_names())
+        if not (name.lower() in self.get_instances_names()):
+            print(f"An instance with the name {name} doesn't exist")
+            return None
+        confirm = input(
+            f"Are you sure you want to delete the instance {name}([Y], N): "
+        )
+        if confirm.lower() in ["y", "n"]:
+            if confirm.lower() == "n":
+                return None
+            shutil.rmtree(self.get_instance_folder(name))
+            ins_file = self.get_instance_file(name)
+            os.remove(ins_file)
 
 
 # TODO Simplify every thing
