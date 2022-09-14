@@ -22,4 +22,9 @@ DC = [
 
 AVAILABLE_SETTINGS = [""]
 
+
+def get_paths():
+    pass
+
+
 # Todo Change to be on roaming folder or something IDK
