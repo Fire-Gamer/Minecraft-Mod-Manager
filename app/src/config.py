@@ -51,7 +51,6 @@ class Config(object):
                 settings.append(f"{i}\n")
         return settings
 
-    #! May be added parameters change: bool = False, new: bool = False, new_setting: dict = {}
     def read_conf(self) -> dict:
         try:
             config_dict = {}
@@ -80,23 +79,23 @@ class Config(object):
         conf = self.read_conf()
         setting = self.setting_to_str(change)
         val = list(change.keys())[0]
-        if (val in [i[0] for i in conf.items()]) and (
-            list(change.get(val).items())[0][0]
-            in [i[0] for i in list(conf.get(val).items())]
+        if (
+            (val in [i[0] for i in conf.items()])
+            and (
+                list(change.get(val).items())[0][0]
+                in [i[0] for i in list(conf.get(val).items())]
+            )
+            or val in conf.keys()
         ):
-            # ? If updating an existing setting
-            txt = self.conf_to_str(conf)
-            for i in txt:
-                if i.find(f"{val}.{setting.split('==')[0]}") != -1:
-                    index_setting = txt.index(i)
-                    txt[index_setting] = f"\t{setting}\n"
-        elif val in conf.keys():
+            # ? If updating an existing setting or creating a new setting on existing category
             change_list = list(change.get(val).items())[0]
             changed_conf = conf.get(val)
             changed_conf.update({change_list[0]: change_list[1]})
             conf.update({val: changed_conf})
             txt = self.conf_to_str(conf)
+            print(txt)
         elif val not in conf.keys():
+            # ? If creating a new category
             conf.update(change)
             txt = self.conf_to_str(conf)
         else:
@@ -111,18 +110,21 @@ class Config(object):
         self.write_conf({"run": {"first": "false"}})
         os.system("cls")
         print("Enter your mc folder or nothing for default")
-        MCDIR = input("Minecraft Folder: ")
+        mc_dir = input("Minecraft Folder: ")
         while (
-            (not os.path.exists(MCDIR))
-            or (not os.path.exists(f"{MCDIR}/mods"))
-            or (not os.path.exists(f"{MCDIR}/versions"))
-        ) and MCDIR:
-            if not os.path.exists(MCDIR):
+            (not os.path.exists(mc_dir))
+            or (not os.path.exists(f"{mc_dir}/mods"))
+            or (not os.path.exists(f"{mc_dir}/versions"))
+        ) and mc_dir:
+            if not os.path.exists(mc_dir):
                 print("[Invalid] The path doesn't exist")
             else:
                 print("[Invalid] The given folder is not a mc folder")
-            MCDIR = input("Please enter your mc folder: ")
-        self.write_conf({"minecraft": {"folder": MCDIR}})
+            mc_dir = input("Please enter your mc folder: ")
+        if mc_dir:
+            self.write_conf({"minecraft": {"folder": mc_dir}})
+        else:
+            self.write_conf({"minecraft": {"folder": DMF}})
         print(f"The config file is found at {CONFIG_FILE}. Change is based on the docx")
 
     def conf_to_str(self, conf: dict) -> list:

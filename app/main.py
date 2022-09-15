@@ -10,32 +10,32 @@ os.system("")
 
 
 def create_dirs():
-    returning = ""
+    returning = True
     if not (os.path.exists(MMMF)):
         os.makedirs(MMMF)
-        returning = "Added"
+        returning = False
     if not (os.path.exists(CONFIG_FOLDER)):
         os.makedirs(CONFIG_FOLDER)
-        returning = "Added"
+        returning = False
     if not (os.path.exists(INSTANCES_FOLDER)):
         os.makedirs(INSTANCES_FOLDER)
-        returning = "Added"
+        returning = False
     if not (os.path.exists(DIF)):
         os.makedirs(DIF)
-        returning = "Added"
+        returning = False
     if not os.path.exists(INDEX):
         with open(INDEX, "w") as index:
             pass
-        returning = "Added"
+        returning = False
     if not os.path.exists(CONFIG_FILE):
         with open(CONFIG_FILE, "w") as conf:
             for i in DC:
                 conf.write(i)
-        returning = "Added"
-    if returning == "":
-        return None
+        returning = False
+    if returning:
+        return 1
     else:
-        return 0
+        return None
 
 
 def create(args):
@@ -49,7 +49,8 @@ def initialize(args):
     create_dirs()
     if not create_dirs():
         print("Already initialized")
-    Config()
+    if os.path.exists(CONFIG_FILE):
+        Config()
 
 
 def lst(args):
