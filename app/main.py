@@ -54,8 +54,8 @@ def initialize(args):
 
 
 def lst(args):
-    arg = args
     instanceManager = create_instance_manager()
+    instanceManager.update_index()
     details = {}
     instances = instanceManager.get_instances_names()
     for instance in instances:
@@ -80,6 +80,11 @@ def update(args):
 def delete(args):
     instanceManager = create_instance_manager()
     instanceManager.delete_instance(args.name)
+
+
+def fix_index(args):
+    instanceManager = create_instance_manager()
+    instanceManager.update_index()
 
 
 def args():
@@ -142,6 +147,24 @@ def args():
     delete_parser.add_argument("name", help="Name of instance to delete")
     delete_parser.set_defaults(func=delete)
 
+    index_parser = subparser.add_parser("index", help="Fixes the index if corrupted")
+    index_parser.set_defaults(func=fix_index)
+
+    disable_parser = subparser.add_parser(
+        "disable", help="disable a mode in the current instance or a specified instance"
+    )
+    disable_parser.add_argument("mod", help="The mod to disable")
+    disable_parser.add_argument(
+        "-i", "--instance", help="An instance in which the mod is found"
+    )
+
+    enable_parser = subparser.add_parser(
+        "enable", help="disable a mode in the current instance or a specified instance"
+    )
+    enable_parser.add_argument("mod", help="The mod to to enable")
+    enable_parser.add_argument(
+        "-i", "--instance", help="An instance in which the mod is found"
+    )
     # ? Parsing args and redirecting to the respective function
     args = parser.parse_args()
     args.func(args)

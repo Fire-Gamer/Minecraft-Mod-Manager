@@ -30,22 +30,10 @@ class InstanceManager(object):
                 None
         """
 
-        if name in self.instances_names:
-            print(f"[ERROR] [Invalid] An instance with the name of {name} exists.")
-            return None
-        else:
-            instance = {
-                "name": name.capitalize(),
-                "mods": mods,
-                "setting": setting,
-                "version": version,
-                "loader": loader,
-            }
-
-        self.instances_names += instance.get("name")
-        if instance is None:
-            return
         if check:
+            if name in self.instances_names:
+                print(f"[ERROR] [Invalid] An instance with the name of {name} exists.")
+                return None
             if os.path.exists(f"{INSTANCES_FOLDER}/{name}.instance"):
                 print(
                     f"[ERROR] [INFO] An instance with the name of {name} already exists"
@@ -54,6 +42,17 @@ class InstanceManager(object):
             if os.path.isdir(f"{INSTANCES_FOLDER}/{name}.instance"):
                 print(f"[ERROR] [INFO] A folder with the name of {name} already exists")
                 return None
+        instance = {
+            "name": name.capitalize(),
+            "mods": mods,
+            "setting": setting,
+            "version": version,
+            "loader": loader,
+        }
+
+        self.instances_names += instance.get("name")
+        if instance is None:
+            return
         save: str
         save = f"name=={instance.get('name')}\n[\n\t\u007b\n"
         for mod, enabled in instance.get("mods").items():
@@ -70,8 +69,9 @@ class InstanceManager(object):
         ) as index:
             ins.write(save)
             index.write(f"{instance.get('name')}\n")
-        os.makedirs(f"{DIF}\{name}")
-        os.makedirs(f"{DIF}\{name}\mods")
+        if not (os.path.exists(f"{DIF}\{name}") and os.path.isdir(f"{DIF}\{name}")):
+            os.makedirs(f"{DIF}\{name}")
+            os.makedirs(f"{DIF}\{name}\mods")
         if setting == True:
             shutil.copy(f"{MF}\options.txt", f"{DIF}\{name}\\")
         # Todo Make a settings file
@@ -123,7 +123,6 @@ class InstanceManager(object):
                 index.write(f"{name[:-9]}\n")
 
     def read_instance(self, name: str):
-        # TODO Rename temp
         instance_dict = {}
         temp = []
         mods = {}
@@ -147,20 +146,31 @@ class InstanceManager(object):
         return instance_dict
 
     def change_enabled(self, state: str, mod: str, inst=None) -> None:
+        inst = self.get_current() if not inst else inst
         if state.lower() not in ["true", "false"]:
             raise Exception("Not a valid state")
-        instance = self.instance
+        instance = self.read_instance(inst)
+        mods = instance.get("mods")
+        mods.update({mod: state.lower()})
+        self.create_instance(
+            inst,
+            instance.get("setting"),
+            instance.get("version"),
+            instance.get("loader"),
+            mods=mods,
+            check=False,
+        )
 
     def update_instance(self, name: str):
         mods = {}
+        inst = self.read_instance(name)
         for i in os.listdir(f"{DIF}\{name}\mods"):
-            # TODO change to deactivate and activate instances
             mods.update({f"{i}": f"true"})
         self.create_instance(
             name,
-            self.read_instance("setting"),
-            self.read_instance("version"),
-            self.read_instance("loader"),
+            inst.get("setting"),
+            inst.get("version"),
+            inst.get("loader"),
             mods=mods,
             check=False,
         )
@@ -217,6 +227,7 @@ class InstanceManager(object):
         shutil.rmtree(self.get_instance_folder(name))
         ins_file = self.get_instance_file(name)
         os.remove(ins_file)
+        self.update_index()
 
 
 # TODO Simplify every thing
