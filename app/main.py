@@ -73,7 +73,8 @@ def apply(args):
 
 
 def update(args):
-    pass
+    instanceManager = create_instance_manager()
+    instanceManager.update_instance(args.name)
 
 
 def delete(args):

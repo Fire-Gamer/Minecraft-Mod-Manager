@@ -19,6 +19,3 @@ DC = [
     "\tdefaults.loader==None\n",
     "\tdefaults.settings==None",
 ]
-
-
-# TODO finish and replace with other

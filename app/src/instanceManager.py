@@ -1,6 +1,9 @@
-from public.constants import *
+from public.constants import DIF, INSTANCES_FOLDER, INDEX
+from public.utils import get_mc_folder
 import os
 import shutil
+
+MF = get_mc_folder()
 
 
 class InstanceManager(object):
@@ -70,16 +73,27 @@ class InstanceManager(object):
         os.makedirs(f"{DIF}\{name}")
         os.makedirs(f"{DIF}\{name}\mods")
         if setting == True:
-            shutil.copy(f"{DMF}\options.txt", f"{DIF}\{name}\\")
+            shutil.copy(f"{MF}\options.txt", f"{DIF}\{name}\\")
         # Todo Make a settings file
 
     def get_instances_names(self):
         return [name.lower() for name in self.instances_names]
 
     def get_instance_folder(self, name) -> str:
-        if self.get_instances_file() is not None:
+        if self.get_instance_file(name) is not None:
             return f"{DIF}\{name}"
         return None
+
+    def get_current(self) -> str:
+        with open(INDEX, "r") as index:
+            lines = index.readline()
+            strip_lines = []
+            for line in lines:
+                strip_lines.append(line.strip())
+        for line in strip_lines:
+            if line.find("#") != -1:
+                return line.replace("#", "")
+        print("No current")
 
     def get_instance_file(self, name: str):
         with open(f"{INDEX}", "r") as index:
@@ -132,9 +146,14 @@ class InstanceManager(object):
         instance_dict.update({"loader": temp[-1].split("==")[1]})
         return instance_dict
 
+    def change_enabled(self, state: str, mod: str, inst=None) -> None:
+        if state.lower() not in ["true", "false"]:
+            raise Exception("Not a valid state")
+        instance = self.instance
+
     def update_instance(self, name: str):
         mods = {}
-        for i in os.listdir(f"{DIF}\{name}"):
+        for i in os.listdir(f"{DIF}\{name}\mods"):
             # TODO change to deactivate and activate instances
             mods.update({f"{i}": f"true"})
         self.create_instance(
@@ -174,24 +193,30 @@ class InstanceManager(object):
         instance = self.read_instance(name)
         for mod, enabled in instance.get("mods").items():
             if enabled.lower() == "true":
-                shutil.copy(f"{DIF}\\{name}\\mods\\{mod}", f"{DMF}\\mods\\")
+                shutil.copy(f"{DIF}\\{name}\\mods\\{mod}", f"{MF}\\mods\\")
             else:
                 print(f"Mod {mod} is not enabled")
+        with open(INDEX, "r") as index:
+            lines = index.readlines()
+            new_lines = [line.strip().replace("#", "") for line in lines]
+            new_lines[new_lines.index(name)] = f"#{name}"
+        with open(INDEX, "w") as index:
+            for line in new_lines:
+                index.write(line)
 
     def delete_instance(self, name: str):
-        print(self.get_instances_names())
+        name = name.lower()
         if not (name.lower() in self.get_instances_names()):
             print(f"An instance with the name {name} doesn't exist")
             return None
         confirm = input(
             f"Are you sure you want to delete the instance {name}([Y], N): "
         )
-        if confirm.lower() in ["y", "n"]:
-            if confirm.lower() == "n":
-                return None
-            shutil.rmtree(self.get_instance_folder(name))
-            ins_file = self.get_instance_file(name)
-            os.remove(ins_file)
+        if confirm.lower() == "n":
+            return None
+        shutil.rmtree(self.get_instance_folder(name))
+        ins_file = self.get_instance_file(name)
+        os.remove(ins_file)
 
 
 # TODO Simplify every thing
