@@ -145,9 +145,9 @@ class InstanceManager(object):
         instance_dict.update({"loader": temp[-1].split("==")[1]})
         return instance_dict
 
-    def change_enabled(self, state: str, mod: str, inst=None) -> None:
+    def change_mod_state(self, state: str, mod: str, inst=None) -> None:
         inst = self.get_current() if not inst else inst
-        if state.lower() not in ["true", "false"]:
+        if state.lower() not in ["enabled", "disabled"]:
             raise Exception("Not a valid state")
         instance = self.read_instance(inst)
         mods = instance.get("mods")

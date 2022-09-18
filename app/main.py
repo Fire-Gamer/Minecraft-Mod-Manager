@@ -87,6 +87,30 @@ def fix_index(args):
     instanceManager.update_index()
 
 
+def enable(args):
+    instanceManager = create_instance_manager()
+    if args.inst and args.inst in instanceManager.get_instances_names():
+        instanceManager.change_mod_state("enabled", args.mod, args.inst)
+    instanceManager.change_mod_state("enabled", args.mod)
+
+
+def disable(args):
+    instanceManager = create_instance_manager()
+    if args.inst and args.inst in instanceManager.get_instances_names():
+        instanceManager.change_mod_state("disabled", args.mod, args.inst)
+    instanceManager.change_mod_state("disabled", args.mod)
+
+
+def show_details(args):
+    instanceManager = create_instance_manager()
+    if not args.name in instanceManager.get_instances_names():
+        raise Exception(f"No instance with name of {args.name}")
+    print(f"Name: {args.name}")
+    print(f"Mods: ")
+    for mod, state in instanceManager.read_instance(args.name).get("mods"):
+        print(f"\t  {mod}: {state}")
+
+
 def args():
     # Main parser (Parent)
     parser = argparse.ArgumentParser(
@@ -155,16 +179,25 @@ def args():
     )
     disable_parser.add_argument("mod", help="The mod to disable")
     disable_parser.add_argument(
-        "-i", "--instance", help="An instance in which the mod is found"
+        "-i", "--instance", help="An instance in which the mod is found", dest="inst"
     )
+    disable_parser.set_defaults(func=disable)
 
     enable_parser = subparser.add_parser(
         "enable", help="disable a mode in the current instance or a specified instance"
     )
     enable_parser.add_argument("mod", help="The mod to to enable")
     enable_parser.add_argument(
-        "-i", "--instance", help="An instance in which the mod is found"
+        "-i", "--instance", help="An instance in which the mod is found", dest="inst"
     )
+    enable_parser.set_defaults(func=enable)
+
+    details_parser = subparser.add_parser(
+        "details", help="Show the details of instance with a given name"
+    )
+    details_parser.add_argument("name", help="The name of the instance")
+    details_parser.set_defaults(func=show_details)
+
     # ? Parsing args and redirecting to the respective function
     args = parser.parse_args()
     args.func(args)
