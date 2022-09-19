@@ -1,5 +1,5 @@
 from public.constants import DIF, INSTANCES_FOLDER, INDEX
-from public.utils import get_mc_folder
+from public.utils import get_mc_folder, str_to_bool
 import os
 import shutil
 
@@ -32,16 +32,11 @@ class InstanceManager(object):
 
         if check:
             if name in self.instances_names:
-                print(f"[ERROR] [Invalid] An instance with the name of {name} exists.")
-                return None
+                raise Exception(f"An instance with the name of {name} exists.")
             if os.path.exists(f"{INSTANCES_FOLDER}/{name}.instance"):
-                print(
-                    f"[ERROR] [INFO] An instance with the name of {name} already exists"
-                )
-                return None
+                raise Exception(f"An instance with the name of {name} already exists")
             if os.path.isdir(f"{INSTANCES_FOLDER}/{name}.instance"):
-                print(f"[ERROR] [INFO] A folder with the name of {name} already exists")
-                return None
+                raise Exception(f"A folder with the name of {name} already exists")
         instance = {
             "name": name.capitalize(),
             "mods": mods,
@@ -74,7 +69,10 @@ class InstanceManager(object):
             os.makedirs(f"{DIF}\{name}\mods")
         if setting == True:
             shutil.copy(f"{MF}\options.txt", f"{DIF}\{name}\\")
-        # Todo Make a settings file
+        open_folder = input(f"Do you want to open the mods folder of {name}([Y], N)")
+        if open_folder.lower() == "n":
+            return None
+        os.system(f"explorer {self.get_instance_folder(name)}")
 
     def get_instances_names(self):
         return [name.lower() for name in self.instances_names]
@@ -106,12 +104,10 @@ class InstanceManager(object):
                 ):
                     return f"{INSTANCES_FOLDER}\{name.lower()}.instance"
                 else:
-                    print(
-                        f"[ERROR] [Invalid] An instance with the name '{name}' does not exist"
+                    raise Exception(
+                        f"An instance with the name '{name}' does not exist"
                     )
-                    return None
-        print(f"[ERROR] [Exception] Index file is corrupted please update.")
-        return None
+        raise Exception(f"Index file is corrupted please update.")
 
     def update_index(self):
         with open(f"{INDEX}", "w") as index:
@@ -138,9 +134,7 @@ class InstanceManager(object):
             )
         instance_dict.update({"name": temp[0].split("==")[1].capitalize()})
         instance_dict.update({"mods": mods})
-        instance_dict.update(
-            {"setting": True if temp[-3].split("==")[1].lower() == "true" else False}
-        )
+        instance_dict.update({"setting": str_to_bool(temp[-3].split("==")[1].lower())})
         instance_dict.update({"version": temp[-2].split("==")[1]})
         instance_dict.update({"loader": temp[-1].split("==")[1]})
         return instance_dict
@@ -197,7 +191,7 @@ class InstanceManager(object):
                     f"{details.get(instance).get('loader'):^16}"
                 )
         except Exception as e:
-            print(f"[Error] [Exception] {e}")
+            print(f"{e}")
 
     def apply_instance(self, name):
         instance = self.read_instance(name)
@@ -217,8 +211,7 @@ class InstanceManager(object):
     def delete_instance(self, name: str):
         name = name.lower()
         if not (name.lower() in self.get_instances_names()):
-            print(f"An instance with the name {name} doesn't exist")
-            return None
+            raise Exception(f"An instance with the name {name} doesn't exist")
         confirm = input(
             f"Are you sure you want to delete the instance {name}([Y], N): "
         )

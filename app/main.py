@@ -43,6 +43,7 @@ def create(args):
     instanceManager.create_instance(
         args.name, True if args.settings == "true" else False, args.version, args.loader
     )
+    instanceManager.update_index()
 
 
 def initialize(args):
@@ -70,16 +71,19 @@ def lst(args):
 def apply(args):
     instanceManager = create_instance_manager()
     instanceManager.apply_instance(args.name)
+    instanceManager.update_index()
 
 
 def update(args):
     instanceManager = create_instance_manager()
     instanceManager.update_instance(args.name)
+    instanceManager.update_index()
 
 
 def delete(args):
     instanceManager = create_instance_manager()
     instanceManager.delete_instance(args.name)
+    instanceManager.update_index()
 
 
 def fix_index(args):
@@ -92,6 +96,7 @@ def enable(args):
     if args.inst and args.inst in instanceManager.get_instances_names():
         instanceManager.change_mod_state("enabled", args.mod, args.inst)
     instanceManager.change_mod_state("enabled", args.mod)
+    instanceManager.update_index()
 
 
 def disable(args):
@@ -99,6 +104,7 @@ def disable(args):
     if args.inst and args.inst in instanceManager.get_instances_names():
         instanceManager.change_mod_state("disabled", args.mod, args.inst)
     instanceManager.change_mod_state("disabled", args.mod)
+    instanceManager.update_index()
 
 
 def show_details(args):
@@ -107,8 +113,12 @@ def show_details(args):
         raise Exception(f"No instance with name of {args.name}")
     print(f"Name: {args.name}")
     print(f"Mods: ")
-    for mod, state in instanceManager.read_instance(args.name).get("mods"):
+    instance = instanceManager.read_instance(args.name)
+    for mod, state in instance.get("mods"):
         print(f"\t  {mod}: {state}")
+    print(f"Save settings: {instance.get('setting')}")
+    print(f"Version: {instance.get('version')}")
+    print(f"loader: {instance.get('loader')}")
 
 
 def args():
