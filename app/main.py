@@ -1,4 +1,13 @@
-from public.constants import *
+from public.constants import (
+    MMMF,
+    CONFIG_FOLDER,
+    INSTANCES_FOLDER,
+    DIF,
+    CURRENT,
+    INDEX,
+    DC,
+    CONFIG_FILE,
+)
 from src.instanceManager import InstanceManager
 from src.config import Config
 import argparse
@@ -22,6 +31,10 @@ def create_dirs():
         returning = True
     if not (os.path.exists(DIF)):
         os.makedirs(DIF)
+        returning = True
+    if not (os.path.exists(CURRENT)):
+        with open(CURRENT, "w") as cur:
+            pass
         returning = True
     if not os.path.exists(INDEX):
         with open(INDEX, "w") as index:
@@ -47,11 +60,12 @@ def create(args):
 
 
 def initialize(args):
-    create_dirs()
-    if not create_dirs():
-        print("Already initialized")
-    if os.path.exists(CONFIG_FILE):
+    if create_dirs():
         Config()
+        instanceManager = create_instance_manager()
+        instanceManager.create_instance("Default", False, "None", "vanilla")
+    else:
+        print("Already initialized")
 
 
 def lst(args):

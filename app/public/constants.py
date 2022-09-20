@@ -2,6 +2,7 @@ from pathlib import Path
 
 HOME = f"{str(Path.home())}\AppData\Roaming"
 MMMF = f"{HOME}\mmm"
+CURRENT = f"{MMMF}/current.txt"
 CONFIG_FOLDER = f"{MMMF}\\config\\"
 INSTANCES_FOLDER = f"{MMMF}\\instances\\"
 INDEX = f"{MMMF}\\index"

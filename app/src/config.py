@@ -8,8 +8,8 @@ class Config(object):
             print(f"Config file at {config_path} could not be found")
         else:
             self.config_path = config_path
-        if self.read_conf().get("run").get("first") == "true":
-            self.first_run()
+            if self.read_conf().get("run").get("first") == "true":
+                self.first_run()
 
     def conf_block(self, start: str, conf: list, end: list = ["[", "]"]) -> list:
         """Gets a block of config between the start and end
@@ -38,7 +38,7 @@ class Config(object):
                 ):
                     return conf[conf.index(start) + 1 : conf.index(i) + 1]
 
-    def update_settings(self, conf):
+    def update_settings(self, conf) -> None:
         """
         Args:
                 conf (list): the config file
@@ -52,6 +52,11 @@ class Config(object):
         return settings
 
     def read_conf(self) -> dict:
+        """Reads the config file
+
+        Returns:
+            dict: the config
+        """
         try:
             config_dict = {}
             settings = []
@@ -76,6 +81,11 @@ class Config(object):
             return config_dict
 
     def write_conf(self, change: dict):
+        """Writes the specified change
+
+        Args:
+            change (dict): change
+        """
         conf = self.read_conf()
         setting = self.setting_to_str(change)
         val = list(change.keys())[0]
@@ -93,7 +103,6 @@ class Config(object):
             changed_conf.update({change_list[0]: change_list[1]})
             conf.update({val: changed_conf})
             txt = self.conf_to_str(conf)
-            print(txt)
         elif val not in conf.keys():
             # ? If creating a new category
             conf.update(change)
@@ -105,8 +114,8 @@ class Config(object):
             for line in txt:
                 config.write(line)
 
-    def first_run(self):
-        conf = self.read_conf()
+    def first_run(self) -> None:
+        """Triggers if on first run"""
         self.write_conf({"run": {"first": "false"}})
         os.system("cls")
         print("Enter your mc folder or nothing for default")

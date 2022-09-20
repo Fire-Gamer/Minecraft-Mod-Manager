@@ -1,4 +1,4 @@
-from public.constants import DIF, INSTANCES_FOLDER, INDEX
+from public.constants import DIF, INSTANCES_FOLDER, INDEX, CURRENT
 from public.utils import get_mc_folder, str_to_bool
 import os
 import shutil
@@ -9,6 +9,10 @@ MF = get_mc_folder()
 class InstanceManager(object):
     def __init__(self, instances_names: list):
         self.instances_names = instances_names
+        self.current = self.get_current()
+
+    def __len__(self):
+        return len(self.instances_names)
 
     def create_instance(
         self,
@@ -23,9 +27,9 @@ class InstanceManager(object):
         Args:
                 name (str): name of the instance
                 mods (dict): a mod and its path {mod_file_name: path}
-                setting (bool): path of the setting file
+                setting (bool): whether is saving the settings or not
                 version (str): mc version number
-                loader (str): either fabric or forge
+                loader (str): either fabric, forge or vanilla
         Returns:
                 None
         """
@@ -74,42 +78,8 @@ class InstanceManager(object):
             return None
         os.system(f"explorer {self.get_instance_folder(name)}")
 
-    def get_instances_names(self):
-        return [name.lower() for name in self.instances_names]
-
-    def get_instance_folder(self, name) -> str:
-        if self.get_instance_file(name) is not None:
-            return f"{DIF}\{name}"
-        return None
-
-    def get_current(self) -> str:
-        with open(INDEX, "r") as index:
-            lines = index.readline()
-            strip_lines = []
-            for line in lines:
-                strip_lines.append(line.strip())
-        for line in strip_lines:
-            if line.find("#") != -1:
-                return line.replace("#", "")
-        print("No current")
-
-    def get_instance_file(self, name: str):
-        with open(f"{INDEX}", "r") as index:
-            instance_names = []
-            for instance in index.readlines():
-                instance_names.append(instance.strip())
-            for instance in instance_names:
-                if instance.lower() == name.lower() and os.path.exists(
-                    f"{INSTANCES_FOLDER}\{name.lower()}.instance"
-                ):
-                    return f"{INSTANCES_FOLDER}\{name.lower()}.instance"
-                else:
-                    raise Exception(
-                        f"An instance with the name '{name}' does not exist"
-                    )
-        raise Exception(f"Index file is corrupted please update.")
-
-    def update_index(self):
+    def update_index(self) -> None:
+        """Updates the index based on the files that exists"""
         with open(f"{INDEX}", "w") as index:
             instances = []
             for file in os.listdir(f"{INSTANCES_FOLDER}"):
@@ -118,7 +88,15 @@ class InstanceManager(object):
             for name in instances:
                 index.write(f"{name[:-9]}\n")
 
-    def read_instance(self, name: str):
+    def read_instance(self, name: str) -> dict:
+        """Reads the instance by the given name
+
+        Args:
+            name (str): the name of the instance
+
+        Returns:
+            dict: the instance's details
+        """
         instance_dict = {}
         temp = []
         mods = {}
@@ -139,7 +117,17 @@ class InstanceManager(object):
         instance_dict.update({"loader": temp[-1].split("==")[1]})
         return instance_dict
 
-    def change_mod_state(self, state: str, mod: str, inst=None) -> None:
+    def change_mod_state(self, state: str, mod: str, inst: str = None) -> None:
+        """Changes a mod to be disabled or enabled
+
+        Args:
+            state (str): enabled or disabled
+            mod (str): the mod to change the state
+            inst (str, optional): the instance witch contains the mod . Defaults to None.
+
+        Raises:
+            Exception: when not a valid state
+        """
         inst = self.get_current() if not inst else inst
         if state.lower() not in ["enabled", "disabled"]:
             raise Exception("Not a valid state")
@@ -155,7 +143,12 @@ class InstanceManager(object):
             check=False,
         )
 
-    def update_instance(self, name: str):
+    def update_instance(self, name: str) -> None:
+        """Update an instance with added mods
+
+        Args:
+            name (str): name
+        """
         mods = {}
         inst = self.read_instance(name)
         for i in os.listdir(f"{DIF}\{name}\mods"):
@@ -169,7 +162,7 @@ class InstanceManager(object):
             check=False,
         )
 
-    def print_instances(self, instances: list, details: dict):
+    def print_instances(self, instances: list, details: dict) -> None:
         """Prints the given instances
 
         Args:
@@ -193,7 +186,12 @@ class InstanceManager(object):
         except Exception as e:
             print(f"{e}")
 
-    def apply_instance(self, name):
+    def apply_instance(self, name: str) -> None:
+        """Applies an instance with the given name
+
+        Args:
+            name (str): name
+        """
         instance = self.read_instance(name)
         for mod, enabled in instance.get("mods").items():
             if enabled.lower() == "true":
@@ -201,26 +199,65 @@ class InstanceManager(object):
             else:
                 print(f"Mod {mod} is not enabled")
         with open(INDEX, "r") as index:
-            lines = index.readlines()
-            new_lines = [line.strip().replace("#", "") for line in lines]
-            new_lines[new_lines.index(name)] = f"#{name}"
+            lines = [line.strip() for line in index.readlines()]
+        with open(CURRENT, "r") as cur:
+            cur.write(name)
+            self.current = name
         with open(INDEX, "w") as index:
-            for line in new_lines:
+            for line in lines:
                 index.write(line)
 
-    def delete_instance(self, name: str):
+    def delete_instance(self, name: str) -> None:
+        """Deletes an instance
+
+        Args:
+            name (str): name
+
+        Raises:
+            Exception: if an instance does not exist
+
+        """
         name = name.lower()
+        if name == "default":
+            raise Exception("Can't delete default")
         if not (name.lower() in self.get_instances_names()):
             raise Exception(f"An instance with the name {name} doesn't exist")
         confirm = input(
             f"Are you sure you want to delete the instance {name}([Y], N): "
         )
         if confirm.lower() == "n":
-            return None
+            return
         shutil.rmtree(self.get_instance_folder(name))
         ins_file = self.get_instance_file(name)
         os.remove(ins_file)
         self.update_index()
 
+    def get_instances_names(self):
+        return [name.lower() for name in self.instances_names]
 
-# TODO Simplify every thing
+    def get_instance_folder(self, name) -> str:
+        if self.get_instance_file(name) is not None:
+            return f"{DIF}\{name}"
+        return None
+
+    def get_current(self) -> str:
+        with open(CURRENT, "r") as cur:
+            if not (current := cur.readline()):
+                raise Exception("No current instance selected")
+        return current
+
+    def get_instance_file(self, name: str):
+        with open(f"{INDEX}", "r") as index:
+            instance_names = []
+            for instance in index.readlines():
+                instance_names.append(instance.strip())
+            for instance in instance_names:
+                if instance.lower() == name.lower() and os.path.exists(
+                    f"{INSTANCES_FOLDER}\{name.lower()}.instance"
+                ):
+                    return f"{INSTANCES_FOLDER}\{name.lower()}.instance"
+                else:
+                    raise Exception(
+                        f"An instance with the name '{name}' does not exist"
+                    )
+        raise Exception(f"Index file is corrupted please update.")
