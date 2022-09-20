@@ -10,32 +10,32 @@ os.system("")
 
 
 def create_dirs():
-    returning = True
+    returning = False
     if not (os.path.exists(MMMF)):
         os.makedirs(MMMF)
-        returning = False
+        returning = True
     if not (os.path.exists(CONFIG_FOLDER)):
         os.makedirs(CONFIG_FOLDER)
-        returning = False
+        returning = True
     if not (os.path.exists(INSTANCES_FOLDER)):
         os.makedirs(INSTANCES_FOLDER)
-        returning = False
+        returning = True
     if not (os.path.exists(DIF)):
         os.makedirs(DIF)
-        returning = False
+        returning = True
     if not os.path.exists(INDEX):
         with open(INDEX, "w") as index:
             pass
-        returning = False
+        returning = True
     if not os.path.exists(CONFIG_FILE):
         with open(CONFIG_FILE, "w") as conf:
             for i in DC:
                 conf.write(i)
-        returning = False
+        returning = True
     if returning:
-        return 1
+        return True
     else:
-        return None
+        return False
 
 
 def create(args):
@@ -56,16 +56,22 @@ def initialize(args):
 
 def lst(args):
     instanceManager = create_instance_manager()
-    instanceManager.update_index()
-    details = {}
-    instances = instanceManager.get_instances_names()
-    for instance in instances:
-        detail = {
-            "loader": instanceManager.read_instance(instance).get("loader"),
-            "version": instanceManager.read_instance(instance).get("version"),
-        }
-        details.update({instance: detail})
-    instanceManager.print_instances(instances, details)
+    if len(instanceManager.get_instances_names()) == 0:
+        raise Exception("No instances created use 'mmm create' to make a new one")
+    if not args.simple:
+        instanceManager.update_index()
+        details = {}
+        instances = instanceManager.get_instances_names()
+        for instance in instances:
+            detail = {
+                "loader": instanceManager.read_instance(instance).get("loader"),
+                "version": instanceManager.read_instance(instance).get("version"),
+            }
+            details.update({instance: detail})
+        instanceManager.print_instances(instances, details)
+        return
+    for index, name in enumerate(instanceManager.get_instances_names()):
+        print(f"{index+1}{name.capitalize()}")
 
 
 def apply(args):
@@ -118,7 +124,7 @@ def show_details(args):
         print(f"\t  {mod}: {state}")
     print(f"Save settings: {instance.get('setting')}")
     print(f"Version: {instance.get('version')}")
-    print(f"loader: {instance.get('loader')}")
+    print(f"Loader: {instance.get('loader')}")
 
 
 def args():
