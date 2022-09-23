@@ -70,7 +70,10 @@ def initialize(args):
 
 def lst(args):
     instanceManager = create_instance_manager()
-    if len(instanceManager.get_instances_names()) == 0:
+    if (
+        len(inst_names := instanceManager.get_instances_names()) == 1
+        and inst_names[0].lower() == "default"
+    ):
         raise Exception("No instances created use 'mmm create' to make a new one")
     if not args.simple:
         instanceManager.update_index()

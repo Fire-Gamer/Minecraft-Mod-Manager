@@ -97,10 +97,11 @@ class InstanceManager(object):
         Returns:
             dict: the instance's details
         """
+        name = name.lower()
         instance_dict = {}
         temp = []
         mods = {}
-        with open(f"{INSTANCES_FOLDER}/{name.lower()}.instance", "r") as instance:
+        with open(f"{INSTANCES_FOLDER}/{name}.instance", "r") as instance:
             for line in instance.readlines():
                 temp.append(line.strip().replace(",", ""))
         for i in ["[", "]", ""]:
@@ -149,6 +150,7 @@ class InstanceManager(object):
         Args:
             name (str): name
         """
+        name = name.lower()
         mods = {}
         inst = self.read_instance(name)
         for i in os.listdir(f"{DIF}\{name}\mods"):
@@ -192,7 +194,12 @@ class InstanceManager(object):
         Args:
             name (str): name
         """
+        name = name.lower()
+        if name == "none":
+            self.apply_instance("default")
         instance = self.read_instance(name)
+        for mod in os.listdir(f"{MF}/mods"):
+            os.remove(f"{MF}/mods/{mod}")
         for mod, enabled in instance.get("mods").items():
             if enabled.lower() == "true":
                 shutil.copy(f"{DIF}\\{name}\\mods\\{mod}", f"{MF}\\mods\\")
@@ -200,7 +207,7 @@ class InstanceManager(object):
                 print(f"Mod {mod} is not enabled")
         with open(INDEX, "r") as index:
             lines = [line.strip() for line in index.readlines()]
-        with open(CURRENT, "r") as cur:
+        with open(CURRENT, "w") as cur:
             cur.write(name)
             self.current = name
         with open(INDEX, "w") as index:
@@ -218,7 +225,7 @@ class InstanceManager(object):
 
         """
         name = name.lower()
-        if name == "default":
+        if name == "default" or name == "none":
             raise Exception("Can't delete default")
         if not (name.lower() in self.get_instances_names()):
             raise Exception(f"An instance with the name {name} doesn't exist")
