@@ -230,9 +230,10 @@ class InstanceManager(object):
 
         """
         name = name.lower()
+        ins_file = self.get_instance_file(name)
         if name == "default" or name == "none":
             raise Exception("Can't delete default")
-        if not (name.lower() in self.get_instances_names()):
+        if name not in self.get_instances_names():
             raise Exception(f"An instance with the name {name} doesn't exist")
         confirm = input(
             f"Are you sure you want to delete the instance {name}([Y], N): "
@@ -240,9 +241,9 @@ class InstanceManager(object):
         if confirm.lower() == "n":
             return
         shutil.rmtree(self.get_instance_folder(name))
-        ins_file = self.get_instance_file(name)
         os.remove(ins_file)
         self.update_index()
+        return
 
     def get_instances_names(self):
         return [name.lower() for name in self.instances_names]
@@ -261,6 +262,7 @@ class InstanceManager(object):
         return current if current else None
 
     def get_instance_file(self, name: str):
+        name = name.lower()
         with open(f"{INDEX}", "r") as index:
             instance_names = []
             for instance in index.readlines():
@@ -270,8 +272,4 @@ class InstanceManager(object):
                     f"{INSTANCES_FOLDER}\{name.lower()}.instance"
                 ):
                     return f"{INSTANCES_FOLDER}\{name.lower()}.instance"
-                else:
-                    raise Exception(
-                        f"An instance with the name '{name}' does not exist"
-                    )
-        raise Exception(f"Index file is corrupted please update.")
+            raise Exception(f"An instance with the name '{name}' does not exist")
