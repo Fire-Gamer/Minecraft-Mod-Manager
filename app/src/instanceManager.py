@@ -4,6 +4,7 @@ import os
 import shutil
 
 MF = get_mc_folder()
+MODS = f"{MF}\\mods"
 
 
 class InstanceManager(object):
@@ -198,11 +199,11 @@ class InstanceManager(object):
         if name == "none":
             self.apply_instance("default")
         instance = self.read_instance(name)
-        for mod in os.listdir(f"{MF}/mods"):
-            os.remove(f"{MF}/mods/{mod}")
+        for mod in os.listdir(MODS):
+            os.remove(f"{MODS}\\{mod}")
         for mod, enabled in instance.get("mods").items():
             if enabled.lower() == "true":
-                shutil.copy(f"{DIF}\\{name}\\mods\\{mod}", f"{MF}\\mods\\")
+                shutil.copy(f"{DIF}\\{name}\\mods\\{mod}", MODS)
             else:
                 print(f"Mod {mod} is not enabled")
         with open(INDEX, "r") as index:

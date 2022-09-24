@@ -1,2 +1,2 @@
-rmdir C:\Users\Nahom\AppData\Roaming\.instances
-rmdir C:\Users\Nahom\AppData\Roaming\mmm
+rm -rf "C:\Users\Nahom\AppData\Roaming\.instances"
+rm -rf "C:\Users\Nahom\AppData\Roaming\mmm"
