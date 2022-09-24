@@ -1,5 +1,5 @@
 from public.constants import DIF, INSTANCES_FOLDER, INDEX, CURRENT
-from public.utils import get_mc_folder, str_to_bool
+from public.utils import get_mc_folder, str_to_bool, is_def
 import os
 import shutil
 
@@ -42,6 +42,8 @@ class InstanceManager(object):
                 raise Exception(f"An instance with the name of {name} already exists")
             if os.path.isdir(f"{INSTANCES_FOLDER}/{name}.instance"):
                 raise Exception(f"A folder with the name of {name} already exists")
+        if is_def(name):
+            raise Exception(f"The name {name.lower()} is not allowed")
         instance = {
             "name": name.capitalize(),
             "mods": mods,
@@ -155,6 +157,8 @@ class InstanceManager(object):
             name (str): name
         """
         name = name.lower()
+        if is_def(name):
+            pass
         mods = {}
         inst = self.read_instance(name)
         for i in os.listdir(f"{DIF}\{name}\mods"):
@@ -166,6 +170,7 @@ class InstanceManager(object):
             inst.get("loader"),
             mods=mods,
             check=False,
+            ask_open=False,
         )
 
     def print_instances(self, instances: list, details: dict) -> None:
@@ -210,14 +215,12 @@ class InstanceManager(object):
                     shutil.copy(f"{DIF}\\{name}\\mods\\{mod}", self.MODS)
                 else:
                     print(f"Mod {mod} is not enabled")
-            with open(INDEX, "r") as index:
-                lines = [line.strip() for line in index.readlines()]
+            #! Removed code ! May not work
             with open(CURRENT, "w") as cur:
                 cur.write(name)
                 self.current = name
-            with open(INDEX, "w") as index:
-                for line in lines:
-                    index.write(line)
+            if instance.get("setting"):
+                shutil.copy(f"{DIF}\\{name}\\options.txt", f"{self.MF}\\options.txt")
 
     def delete_instance(self, name: str) -> None:
         """Deletes an instance

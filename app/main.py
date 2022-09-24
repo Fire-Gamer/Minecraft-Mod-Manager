@@ -1,4 +1,3 @@
-from time import sleep
 from public.constants import (
     MMMF,
     CONFIG_FOLDER,
@@ -79,10 +78,13 @@ def lst(args):
         and inst_names[0].lower() == "default"
     ):
         raise Exception("No instances created use 'mmm create' to make a new one")
+    instances = instanceManager.get_instances_names()
+    instances.remove("default")
     if not args.simple:
         instanceManager.update_index()
         details = {}
-        instances = instanceManager.get_instances_names()
+        for index, inst in enumerate(instances[:]):
+            instances[index] = inst.capitalize()
         for instance in instances:
             detail = {
                 "loader": instanceManager.read_instance(instance).get("loader"),
@@ -91,8 +93,8 @@ def lst(args):
             details.update({instance: detail})
         instanceManager.print_instances(instances, details)
         return
-    for index, name in enumerate(instanceManager.get_instances_names()):
-        print(f"{index+1}{name.capitalize()}")
+    for index, name in enumerate(instances):
+        print(f"{index+1}. {name.capitalize()}")
 
 
 def apply(args):
@@ -135,14 +137,15 @@ def disable(args):
 
 
 def show_details(args):
+    args.name = args.name.lower()
     instanceManager = create_instance_manager()
     if not args.name in instanceManager.get_instances_names():
         raise Exception(f"No instance with name of {args.name}")
     print(f"Name: {args.name}")
     print(f"Mods: ")
     instance = instanceManager.read_instance(args.name)
-    for mod, state in instance.get("mods"):
-        print(f"\t  {mod}: {state}")
+    for mod, state in instance.get("mods").items():
+        print(f"     {mod}: {state}")
     print(f"Save settings: {instance.get('setting')}")
     print(f"Version: {instance.get('version')}")
     print(f"Loader: {instance.get('loader')}")
