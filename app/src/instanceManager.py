@@ -10,7 +10,7 @@ MODS = f"{MF}\\mods"
 class InstanceManager(object):
     def __init__(self, instances_names: list):
         self.instances_names = instances_names
-        self.current = self.get_current()
+        self.current = self.get_current(check=False)
 
     def __len__(self):
         return len(self.instances_names)
@@ -248,11 +248,12 @@ class InstanceManager(object):
             return f"{DIF}\{name}"
         return None
 
-    def get_current(self) -> str:
+    def get_current(self, check: bool = True) -> str:
         with open(CURRENT, "r") as cur:
-            if not (current := cur.readline()):
-                raise Exception("No current instance selected")
-        return current
+            if check:
+                if not (current := cur.readline()):
+                    raise Exception("No current instance selected")
+        return current if current else None
 
     def get_instance_file(self, name: str):
         with open(f"{INDEX}", "r") as index:

@@ -64,6 +64,7 @@ def initialize(args):
         Config()
         instanceManager = create_instance_manager()
         instanceManager.create_instance("Default", False, "None", "vanilla")
+        instanceManager.apply_instance("Default")
     else:
         print("Already initialized")
 
