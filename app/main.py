@@ -1,3 +1,4 @@
+from time import sleep
 from public.constants import (
     MMMF,
     CONFIG_FOLDER,
@@ -63,7 +64,9 @@ def initialize(args):
     if create_dirs():
         Config()
         instanceManager = create_instance_manager()
-        instanceManager.create_instance("Default", False, "None", "vanilla")
+        instanceManager.create_instance(
+            "Default", False, "None", "vanilla", ask_open=False
+        )
         instanceManager.apply_instance("Default")
     else:
         print("Already initialized")
@@ -250,7 +253,7 @@ def main():
     try:
         args()
     except Exception as e:
-        print(f"[EXCEPTION] [ERROR] {e}")
+        print(f"[EXCEPTION]: {e}")
     finally:
         pass
 

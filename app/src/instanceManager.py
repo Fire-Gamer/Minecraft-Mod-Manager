@@ -3,12 +3,11 @@ from public.utils import get_mc_folder, str_to_bool
 import os
 import shutil
 
-MF = get_mc_folder()
-MODS = f"{MF}\\mods"
-
 
 class InstanceManager(object):
     def __init__(self, instances_names: list):
+        self.MF = get_mc_folder()
+        self.MODS = f"{self.MF}\\mods"
         self.instances_names = instances_names
         self.current = self.get_current(check=False)
 
@@ -23,6 +22,7 @@ class InstanceManager(object):
         loader: str,
         mods: dict = {},
         check: bool = True,
+        ask_open: bool = True,
     ) -> None:
         """Creates a new instance
         Args:
@@ -73,11 +73,14 @@ class InstanceManager(object):
             os.makedirs(f"{DIF}\{name}")
             os.makedirs(f"{DIF}\{name}\mods")
         if setting == True:
-            shutil.copy(f"{MF}\options.txt", f"{DIF}\{name}\\")
-        open_folder = input(f"Do you want to open the mods folder of {name}([Y], N)")
-        if open_folder.lower() == "n":
-            return None
-        os.system(f"explorer {self.get_instance_folder(name)}")
+            shutil.copy(f"{self.MF}\options.txt", f"{DIF}\{name}\\")
+        if ask_open:
+            open_folder = input(
+                f"Do you want to open the mods folder of {name}([Y], N): "
+            )
+            if open_folder.lower() == "n":
+                return None
+            os.system(f'explorer "{DIF}\{name}"')
 
     def update_index(self) -> None:
         """Updates the index based on the files that exists"""
@@ -197,23 +200,24 @@ class InstanceManager(object):
         """
         name = name.lower()
         if name == "none":
-            self.apply_instance("default")
-        instance = self.read_instance(name)
-        for mod in os.listdir(MODS):
-            os.remove(f"{MODS}\\{mod}")
-        for mod, enabled in instance.get("mods").items():
-            if enabled.lower() == "true":
-                shutil.copy(f"{DIF}\\{name}\\mods\\{mod}", MODS)
-            else:
-                print(f"Mod {mod} is not enabled")
-        with open(INDEX, "r") as index:
-            lines = [line.strip() for line in index.readlines()]
-        with open(CURRENT, "w") as cur:
-            cur.write(name)
-            self.current = name
-        with open(INDEX, "w") as index:
-            for line in lines:
-                index.write(line)
+            self.apply_instance("Default")
+        else:
+            instance = self.read_instance(name)
+            for mod in os.listdir(self.MODS):
+                os.remove(f"{self.MODS}\\{mod}")
+            for mod, enabled in instance.get("mods").items():
+                if enabled.lower() == "true":
+                    shutil.copy(f"{DIF}\\{name}\\mods\\{mod}", self.MODS)
+                else:
+                    print(f"Mod {mod} is not enabled")
+            with open(INDEX, "r") as index:
+                lines = [line.strip() for line in index.readlines()]
+            with open(CURRENT, "w") as cur:
+                cur.write(name)
+                self.current = name
+            with open(INDEX, "w") as index:
+                for line in lines:
+                    index.write(line)
 
     def delete_instance(self, name: str) -> None:
         """Deletes an instance
@@ -244,9 +248,9 @@ class InstanceManager(object):
         return [name.lower() for name in self.instances_names]
 
     def get_instance_folder(self, name) -> str:
-        if self.get_instance_file(name) is not None:
-            return f"{DIF}\{name}"
-        return None
+        if os.path.exists(folder := f"{DIF}\\{name}") and os.path.isdir(folder):
+            return folder
+        raise Exception(f"An instance named {name} doesn't exists.")
 
     def get_current(self, check: bool = True) -> str:
         with open(CURRENT, "r") as cur:
