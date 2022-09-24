@@ -250,8 +250,9 @@ class InstanceManager(object):
 
     def get_current(self, check: bool = True) -> str:
         with open(CURRENT, "r") as cur:
+            current = cur.readline()
             if check:
-                if not (current := cur.readline()):
+                if not current:
                     raise Exception("No current instance selected")
         return current if current else None
 
