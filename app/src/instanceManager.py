@@ -215,7 +215,7 @@ class InstanceManager(object):
                     shutil.copy(f"{DIF}\\{name}\\mods\\{mod}", self.MODS)
                 else:
                     print(f"Mod {mod} is not enabled")
-            #! Removed code ! May not work
+            #! Removed code ! May not work ! Dangerous
             with open(CURRENT, "w") as cur:
                 cur.write(name)
                 self.current = name
